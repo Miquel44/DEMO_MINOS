@@ -27,4 +27,6 @@ urlpatterns = [
     # Rutas de autenticación
     path('registro/', views.registro, name='registro'),
     path('login/', views.login_custom, name='login'),
+    path('onboarding/', views.cuestionario_estilo, name='cuestionario'),
+    path('home', views.home, name= 'home'),
 ]

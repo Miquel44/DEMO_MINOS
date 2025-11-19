@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Users, StyleProfiles
 from .forms import LoginForm, RegistroForm
+from .forms import PerfilEstiloForm
 
 # --- VISTA DE INICIO (Donde vas después de loguearte) ---
 def home(request):
@@ -15,7 +16,7 @@ def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            # 1. Guardar el usuario sin commit para modificar campos
+            # 1. Guardar el usuario
             nuevo_usuario = form.save(commit=False)
             nuevo_usuario.hashed_password = form.cleaned_data['password'] 
             nuevo_usuario.rol = 'CLIENTE' 
@@ -25,8 +26,17 @@ def registro(request):
             # 2. Crear perfil de estilo
             StyleProfiles.objects.create(client_id=nuevo_usuario.id)
 
-            messages.success(request, "¡Cuenta creada! Ahora inicia sesión.")
-            return redirect('login')
+            # --- CAMBIO CLAVE: AUTO-LOGIN ---
+            # En lugar de mandarlo al login, iniciamos la sesión aquí mismo
+            request.session['usuario_id'] = nuevo_usuario.id
+            request.session['usuario_nombre'] = nuevo_usuario.nombre
+
+            # Mensaje de éxito
+            messages.success(request, "¡Bienvenido/a! Antes de empezar, Asterion necesita conocerte.")
+            
+            # --- REDIRECCIÓN DIRECTA AL ONBOARDING ---
+            return redirect('cuestionario') 
+
     else:
         form = RegistroForm()
 
@@ -47,7 +57,7 @@ def login_custom(request):
                     # Guardar sesión
                     request.session['usuario_id'] = usuario.id
                     request.session['usuario_nombre'] = usuario.nombre
-                    
+
                     # REDIRECCIÓN CAMBIADA: Ahora va a 'home' en vez de 'catalogo'
                     return redirect('home') 
                 else:
@@ -58,3 +68,37 @@ def login_custom(request):
         form = LoginForm()
 
     return render(request, 'core/login.html', {'form': form})
+
+# --- AÑADIR A core/views.py ---
+
+from .forms import PerfilEstiloForm # <--- ¡Asegúrate de importarlo arriba!
+
+def cuestionario_estilo(request):
+    # 1. Seguridad: Verificar que el usuario está logueado
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return redirect('login')
+
+    # 2. Obtener el perfil existente de la base de datos
+    perfil = StyleProfiles.objects.get(client_id=usuario_id)
+
+    if request.method == 'POST':
+        # Cargamos el formulario con los datos enviados Y la instancia existente (UPDATE)
+        form = PerfilEstiloForm(request.POST, instance=perfil)
+        
+        if form.is_valid():
+            # Truco: Guardamos el género dentro del campo 'estilo_preferido' para que la IA lo sepa
+            perfil_obj = form.save(commit=False)
+            genero_seleccionado = form.cleaned_data['genero']
+            # Guardamos algo como: "Mujer - Casual"
+            perfil_obj.estilo_preferido = f"{genero_seleccionado}" 
+            perfil_obj.save()
+            
+            messages.success(request, "¡Perfil actualizado! Asterion ya sabe qué recomendarte.")
+            return redirect('home')
+    else:
+        # Si entra por primera vez, mostramos el formulario vacío
+        form = PerfilEstiloForm(instance=perfil)
+
+    return render(request, 'core/cuestionario.html', {'form': form})
+
