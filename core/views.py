@@ -87,14 +87,23 @@ def cuestionario_estilo(request):
         form = PerfilEstiloForm(request.POST, instance=perfil)
         
         if form.is_valid():
-            # Truco: Guardamos el género dentro del campo 'estilo_preferido' para que la IA lo sepa
             perfil_obj = form.save(commit=False)
-            genero_seleccionado = form.cleaned_data['genero']
-            # Guardamos algo como: "Mujer - Casual"
-            perfil_obj.estilo_preferido = f"{genero_seleccionado}" 
+            
+            # OJO: El género ya viene en el form, pero el estilo complejo 
+            # viene dentro de 'gustos_texto' gracias a nuestro JS.
+            # Podemos guardar un resumen en 'estilo_preferido' para estadísticas.
+            
+            # Extraemos el estilo del texto que generó el JS (ej: "Soy Mujer. Mi estilo es Formal.")
+            texto_js = form.cleaned_data['gustos_texto']
+            if "Formal" in texto_js: perfil_obj.estilo_preferido = "Formal"
+            elif "Casual" in texto_js: perfil_obj.estilo_preferido = "Casual"
+            elif "Deportivo" in texto_js: perfil_obj.estilo_preferido = "Deportivo"
+            elif "Alternativo" in texto_js: perfil_obj.estilo_preferido = "Alternativo"
+            else: perfil_obj.estilo_preferido = form.cleaned_data['genero']
+
             perfil_obj.save()
             
-            messages.success(request, "¡Perfil actualizado! Asterion ya sabe qué recomendarte.")
+            messages.success(request, "¡Análisis completado! Asterion ha definido tu estilo.")
             return redirect('home')
     else:
         # Si entra por primera vez, mostramos el formulario vacío

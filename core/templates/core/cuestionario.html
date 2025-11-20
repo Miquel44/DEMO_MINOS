@@ -2,69 +2,344 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tu Estilo - MinosStore</title>
+    <title>Quiz de Estilo | MinosStore</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     {% load static %}
+    <style>
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
+        
+        .quiz-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f4f8; 
+        }
+
+        .card-quiz {
+            width: 100%;
+            max-width: 700px;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.15);
+            background: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .option-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .option-card:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            transform: translateY(-3px);
+        }
+
+        .progress-bar-custom {
+            height: 6px;
+            background: #e2e8f0;
+            width: 100%;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        
+        .step-section { display: none; } 
+        .step-section.active { display: block; animation: fadeIn 0.5s; }
+
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            text-align: center;
+        }
+        .style-img-result {
+            max-height: 300px; /* Un poco más grande para que se luzca el dibujo */
+            object-fit: contain;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-white p-4 text-center">
-                    <img src="{% static 'img/asterion1.png' %}" alt="Asterion Sastre" style="height: 150px;">
-                    <h2 class="mt-3 fw-bold">Ayúdame a conocerte</h2>
-                    <p class="text-muted">Para recomendarte el outfit perfecto, necesito saber un poco más sobre ti.</p>
+<div class="quiz-container">
+    <div class="card card-quiz">
+        <div class="progress-bar-custom">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div class="card-body p-5">
+            <form method="POST" id="mainForm">
+                {% csrf_token %}
+
+                <div id="step1" class="step-section active">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'img/asterion1.png' %}" style="height: 100px;" class="mb-3">
+                        <h2 class="fw-bold text-dark">¡Hola! Soy Asterion.</h2>
+                        <p class="text-muted">Antes de analizar tu psique, necesito tus medidas básicas.</p>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Talla Superior</label>
+                            {{ form.talla_superior }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Talla Inferior</label>
+                            {{ form.talla_inferior }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Presupuesto</label>
+                            {{ form.presupuesto_rango }}
+                        </div>
+                        <div class="d-none">
+                            {{ form.genero }}
+                            {{ form.gustos_texto }} 
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="button" class="btn btn-dark btn-lg rounded-pill" onclick="nextStep(2)">
+                            Comenzar el Quiz de Estilo <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="card-body p-5">
-                    <form method="POST">
-                        {% csrf_token %}
-                        
-                        <h5 class="text-primary mb-3">📏 Tus Tallas</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Talla Parte Superior (Camisas/Chaquetas)</label>
-                                {{ form.talla_superior }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Talla Parte Inferior (Pantalones)</label>
-                                {{ form.talla_inferior }}
-                            </div>
-                        </div>
 
-                        <h5 class="text-primary mb-3">👤 Preferencias</h5>
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">¿Qué ropa buscas? (Género)</label>
-                                {{ form.genero }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Presupuesto aproximado</label>
-                                {{ form.presupuesto_rango }}
-                                <div class="form-text">Ej: "Menos de 50€", "Sin límite", "Low Cost"</div>
+                <div id="step2" class="step-section text-center">
+                    <h3 class="mb-4">¿Qué colección prefieres ver?</h3>
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="option-card" onclick="selectGender('Mujer')">
+                                <div class="fs-1">👩</div><div class="fw-bold mt-2">Mujer</div>
                             </div>
                         </div>
-
-                        <h5 class="text-primary mb-3">🎨 Tus Gustos y Estilo</h5>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Cuéntale a Asterion qué te gusta:</label>
-                            {{ form.gustos_texto }}
-                            <div class="form-text">
-                                <small>💡 Tips: Menciona colores que odias, tejidos que te encantan (lino, algodón), o para qué ocasiones quieres la ropa (oficina, fiesta, gimnasio).</small>
+                        <div class="col-4">
+                            <div class="option-card" onclick="selectGender('Hombre')">
+                                <div class="fs-1">👨</div><div class="fw-bold mt-2">Hombre</div>
                             </div>
                         </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-dark btn-lg">Guardar y Ver Recomendaciones 🚀</button>
+                        <div class="col-4">
+                            <div class="option-card" onclick="selectGender('Unisex')">
+                                <div class="fs-1">🌈</div><div class="fw-bold mt-2">Unisex</div>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <div id="quizContainer" class="step-section"></div>
+
+                <div id="loadingStep" class="step-section text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                    <h3>Asterion está analizando tus respuestas...</h3>
+                    <p class="text-muted">Consultando los astros de la moda.</p>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="resultModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-body">
+        <h2 class="fw-bold mb-3" id="modalTitle">Calculando...</h2>
+        
+        <img src="" id="modalImg" class="style-img-result animate__animated animate__bounceIn">
+        
+        <p class="lead text-muted" id="modalDesc">...</p>
+        
+        <div class="d-grid gap-2 mt-4">
+            <button type="button" class="btn btn-primary btn-lg rounded-pill" onclick="submitRealForm()">
+                Ver mis recomendaciones <i class="bi bi-stars"></i>
+            </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const staticBaseUrl = "{% static 'img/' %}";
+
+    // 1. Textos descriptivos actualizados
+    const styleData = {
+        "Formal": {
+            title: "Estilo Formal",
+            desc: "Elegancia, cortes limpios y profesionalidad. Asterion seleccionará trajes y prendas sofisticadas para ti."
+        },
+        "Casual": {
+            title: "Estilo Casual",
+            desc: "Comodidad ante todo, pero con estilo. Jeans, básicos de calidad y tejidos naturales serán tu base."
+        },
+        "Deportivo": {
+            title: "Estilo Sport",
+            desc: "Energía y movimiento. Ropa técnica y cómoda preparada para la acción y el día a día dinámico."
+        },
+        "Alternativo": { // <--- CAMBIADO DE AVANT-GARDE A ALTERNATIVO
+            title: "Estilo Alternativo",
+            desc: "Urbano, moderno y con personalidad propia. Te propondremos piezas únicas que rompen la norma."
+        }
+    };
+
+    // 2. Mapeo de imágenes (Asegúrate de tener estos archivos en core/static/img/avatars/)
+    const avatarImages = {
+        "Hombre": {
+            "Formal": "avatars/hombre_formal.png",
+            "Casual": "avatars/hombre_casual.png",
+            "Deportivo": "avatars/hombre_sport.png",
+            "Alternativo": "avatars/hombre_alternativo.png", 
+        },
+        "Mujer": {
+            "Formal": "avatars/mujer_formal.png",
+            "Casual": "avatars/mujer_casual.png",
+            "Deportivo": "avatars/mujer_sport.png",
+            "Alternativo": "avatars/mujer_alternativo.png",
+        },
+        "Unisex": { 
+            "Formal": "avatars/unisex_formal.png",
+            "Casual": "avatars/unisex_casual.png",
+            "Deportivo": "avatars/unisex_sport.png",
+            "Alternativo": "avatars/unisex_alternativo.png",
+        }
+    };
+
+    // 3. Preguntas actualizadas con "Alternativo"
+    const questions = [
+        {
+            id: 1, title: "¿Cómo es tu fin de semana ideal?",
+            options: [
+                { text: "Cena elegante", style: "Formal", icon: "🍸" },
+                { text: "Netflix y sofá", style: "Casual", icon: "🍿" },
+                { text: "Salir a correr", style: "Deportivo", icon: "🏃" },
+                { text: "Concierto o festival", style: "Alternativo", icon: "🎸" } // <--- CAMBIO
+            ]
+        },
+        {
+            id: 2, title: "¿Qué calzado usas más?",
+            options: [
+                { text: "Zapatos de piel", style: "Formal", icon: "👠" },
+                { text: "Zapatillas blancas", style: "Casual", icon: "👟" },
+                { text: "Deportivas técnicas", style: "Deportivo", icon: "⚡" },
+                { text: "Botas o diseño único", style: "Alternativo", icon: "🥾" } // <--- CAMBIO
+            ]
+        },
+        {
+            id: 3, title: "¿Colores en tu armario?",
+            options: [
+                { text: "Negro, Azul, Gris", style: "Formal", icon: "⚫" },
+                { text: "Beige, Blanco, Jeans", style: "Casual", icon: "🔵" },
+                { text: "Neón y Vivos", style: "Deportivo", icon: "🟢" },
+                { text: "Negro, Rojo, Estampados", style: "Alternativo", icon: "🟣" } // <--- CAMBIO
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    // Puntuaciones iniciales (Fíjate que ahora la clave es "Alternativo")
+    let scores = { "Formal": 0, "Casual": 0, "Deportivo": 0, "Alternativo": 0 };
+    let userGender = ""; 
+
+    function nextStep(step) {
+        document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active'));
+        if (step === 2) {
+            document.getElementById('step2').classList.add('active');
+            updateProgress(20);
+        } else if (step === 3) {
+            document.getElementById('quizContainer').classList.add('active');
+            renderQuestion();
+        }
+    }
+
+    function selectGender(gender) {
+        userGender = gender;
+        document.querySelector('select[name="genero"]').value = gender;
+        nextStep(3);
+    }
+
+    function renderQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            calculateAndShowModal();
+            return;
+        }
+        const q = questions[currentQuestionIndex];
+        const progress = ((currentQuestionIndex + 2) / (questions.length + 2)) * 100;
+        updateProgress(progress);
+
+        let html = `
+            <div class="text-center animate__animated animate__fadeInRight">
+                <h3 class="mb-4 fw-bold">${q.title}</h3>
+                <div class="row g-3">
+        `;
+        q.options.forEach(opt => {
+            html += `
+                <div class="col-6">
+                    <div class="option-card py-4" onclick="selectOption('${opt.style}')">
+                        <div class="fs-1 mb-2">${opt.icon}</div>
+                        <div class="fw-bold">${opt.text}</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div></div>`;
+        document.getElementById('quizContainer').innerHTML = html;
+    }
+
+    function selectOption(style) {
+        scores[style]++;
+        currentQuestionIndex++;
+        renderQuestion();
+    }
+
+    function updateProgress(percent) {
+        document.getElementById('progressBar').style.width = percent + '%';
+    }
+
+    function calculateAndShowModal() {
+        document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active'));
+        document.getElementById('loadingStep').classList.add('active');
+        updateProgress(100);
+
+        // Calcular ganador
+        let winnerStyle = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+
+        // Rellenar input oculto para Django
+        const finalString = `Soy ${userGender}. Mi estilo predominante es ${winnerStyle}.`;
+        document.querySelector('textarea[name="gustos_texto"]').value = finalString;
+
+        setTimeout(() => {
+            document.getElementById('loadingStep').classList.remove('active');
+            
+            // Mostrar datos en el Modal
+            const data = styleData[winnerStyle];
+            document.getElementById('modalTitle').innerText = `¡Eres ${data.title}!`;
+            document.getElementById('modalDesc').innerText = data.desc;
+            
+            // SELECCIONAR LA FOTO CORRECTA
+            // Accede a avatarImages[Genero][Estilo]
+            const imagePath = avatarImages[userGender][winnerStyle];
+            document.getElementById('modalImg').src = staticBaseUrl + imagePath;
+
+            new bootstrap.Modal(document.getElementById('resultModal')).show();
+            
+        }, 1500);
+    }
+
+    function submitRealForm() {
+        document.getElementById('mainForm').submit();
+    }
+</script>
 
 </body>
 </html>

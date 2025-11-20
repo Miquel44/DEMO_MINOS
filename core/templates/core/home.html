@@ -4,16 +4,113 @@
     <meta charset="UTF-8">
     <title>Inicio | MinosStore</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    {% load static %}
+    <style>
+        /* Paleta de azules Minos */
+        :root {
+            --minos-dark: #1e293b;
+            --minos-blue: #3b82f6;
+            --minos-light: #eff6ff;
+        }
+        body { font-family: 'Helvetica Neue', sans-serif; background-color: var(--minos-light); }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 80px 0;
+            border-radius: 0 0 50px 50px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-img {
+            max-height: 500px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+        .hero-img:hover { transform: scale(1.02); }
+
+        .btn-minos {
+            background-color: var(--minos-blue);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: bold;
+            border: none;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s;
+        }
+        .btn-minos:hover {
+            background-color: #2563eb;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+            color: white;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="container mt-5 text-center">
-        <div class="card shadow p-5">
-            <h1 class="display-4">¡Hola, {{ nombre }}! 👋</h1>
-            <p class="lead">Has iniciado sesión correctamente en MinosStore.</p>
-            <hr class="my-4">
-            <p>Tu Personal Shopper (Asterion) está preparando tus recomendaciones.</p>
-            <a href="{% url 'login' %}" class="btn btn-outline-danger">Cerrar Sesión (Volver al login)</a>
+<body>
+
+    <!-- Navbar simple -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">MinosStore 🐂</a>
+            <div class="d-flex">
+                <span class="navbar-text me-3">Hola, <strong>{{ nombre }}</strong></span>
+                <a href="{% url 'login' %}" class="btn btn-outline-danger btn-sm rounded-pill px-3">Salir</a>
+            </div>
         </div>
-    </div>
+    </nav>
+
+    <!-- Hero Section con Asterion -->
+    <header class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-5 mb-md-0">
+                    <span class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-pill">IA Personal Shopper v2.0</span>
+                    <h1 class="display-3 fw-bold text-dark mb-3">Tu estilo, <br>definido por <span class="text-primary">Asterion</span>.</h1>
+                    <p class="lead text-muted mb-5">Deja que nuestro algoritmo mitológico encuentre las prendas perfectas para tu vida, tus gustos y tu presupuesto.</p>
+                    
+                    <div class="d-flex gap-3 justify-content-center justify-content-md-start">
+                        <a href="{% url 'cuestionario' %}" class="btn btn-minos">
+                            <i class="bi bi-magic"></i> Actualizar mi Estilo
+                        </a>
+                        <button class="btn btn-outline-dark rounded-pill px-4">Ver Catálogo</button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <!-- Usamos la imagen de Asterion con chaqueta -->
+                    <img src="{% static 'img/asterion4.png' %}" alt="Asterion Fashion" class="hero-img img-fluid">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features -->
+    <section class="container py-5 mt-4">
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 border border-primary border-opacity-10">
+                    <h1 class="text-primary">🎨</h1>
+                    <h4 class="fw-bold">Análisis de Color</h4>
+                    <p class="text-muted">Asterion detecta qué colores potencian tu imagen basándose en tus respuestas.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 border border-primary border-opacity-10">
+                    <h1 class="text-primary">🚀</h1>
+                    <h4 class="fw-bold">Envíos Rápidos</h4>
+                    <p class="text-muted">Recibe tu caja personalizada en menos de 48 horas.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 border border-primary border-opacity-10">
+                    <h1 class="text-primary">💎</h1>
+                    <h4 class="fw-bold">Marcas Premium</h4>
+                    <p class="text-muted">Acceso a colecciones de Nike, Massimo Dutti, Zara y EcoLive.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </body>
 </html>
