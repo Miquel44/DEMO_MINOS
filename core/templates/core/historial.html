@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Pedidos | MinosStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+        
+        .history-card {
+            border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .table-custom th {
+            background-color: #f1f5f9; color: #64748b; text-transform: uppercase;
+            font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px; border: none; padding: 15px;
+        }
+        .table-custom td {
+            padding: 20px 15px; vertical-align: middle; border-bottom: 1px solid #f1f5f9;
+            color: #334155; font-weight: 500;
+        }
+        .table-custom tr:last-child td { border-bottom: none; }
+        
+        .status-badge {
+            padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;
+        }
+        .status-preparando { background-color: #dbeafe; color: #1e40af; }
+        .status-enviado { background-color: #d1fae5; color: #065f46; }
+        .status-entregado { background-color: #e0e7ff; color: #3730a3; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark mb-5">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">MinosStore 🐂</a>
+            <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm rounded-pill px-3">Volver</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-dark">📦 Historial de Pedidos</h2>
+            <a href="{% url 'generando_pedido' %}" class="btn btn-primary rounded-pill shadow-sm">
+                <i class="bi bi-plus-lg"></i> Nuevo Pedido
+            </a>
+        </div>
+
+        <div class="card history-card">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th># ID</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in pedidos %}
+                        <tr>
+                            <td><span class="text-muted">#{{ p.id }}</span></td>
+                            <td>{{ p.fecha_pedido|date:"d M Y" }}</td>
+                            <td>
+                                <span class="status-badge status-preparando">{{ p.estado }}</span>
+                            </td>
+                            <td>{{ p.total_final }} €</td>
+                            <td class="text-end">
+                                <a href="{% url 'gestionar_devolucion' p.id %}" class="btn btn-outline-danger btn-sm rounded-pill px-3 me-2">
+                                    <i class="bi bi-arrow-return-left"></i> Devolución
+                                </a>
+
+                                <a href="{% url 'detalle_pedido' p.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                    Ver Detalles <i class="bi bi-chevron-right ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-box-seam fs-1 d-block mb-3 opacity-25"></i>
+                                Aún no has realizado ningún pedido.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

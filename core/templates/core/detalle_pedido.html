@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle Pedido #{{ pedido.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #eff6ff; font-family: 'Segoe UI', sans-serif; }
+        .card-product {
+            border: none; border-radius: 15px; overflow: hidden; height: 100%;
+            transition: transform 0.3s;
+        }
+        .card-product:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">MinosStore 🐂</a>
+        <a href="{% url 'historial' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver al Historial</a>
+    </div>
+</nav>
+
+<div class="container mb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Pedido #{{ pedido.id }}</h2>
+            <p class="text-muted mb-0">Realizado el {{ pedido.fecha_pedido|date:"d de F, Y" }}</p>
+        </div>
+        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">{{ pedido.estado }}</span>
+    </div>
+
+    <div class="row g-4">
+        {% for item in items %}
+        <div class="col-md-3">
+            <div class="card card-product shadow-sm">
+                <img src="{{ item.product.image_url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h6 class="text-muted small fw-bold mb-1">{{ item.product.marca }}</h6>
+                    <h5 class="card-title fs-6 fw-bold text-truncate">{{ item.product.nombre }}</h5>
+                    <p class="text-primary fw-bold mb-0 mt-2">{{ item.product.precio }} €</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="col-md-12 mt-4">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold border-bottom pb-3 mb-3">Resumen</h5>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Coste Servicio Personal Shopper</span>
+                    <span>{{ pedido.coste_servicio }} €</span>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <span class="text-muted">Valor de las prendas</span>
+                    <span>{{ pedido.total_final|add:"-10" }} €</span>
+                </div>
+                <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                    <span class="fw-bold fs-5">Total</span>
+                    <span class="fw-bold fs-5 text-primary">{{ pedido.total_final }} €</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

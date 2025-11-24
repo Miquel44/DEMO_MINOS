@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Creando tu Caja | MinosStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    {% load static %}
+    <style>
+        body { 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background-color: #eff6ff;
+            text-align: center;
+        }
+        .content-box { max-width: 600px; padding: 2rem; }
+        
+        /* Animación de "Pensando" */
+        .thinking-img {
+            height: 200px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="content-box">
+        
+        <div id="state-thinking">
+            <img src="{% static 'img/asterion2.png' %}" alt="Pensando" class="thinking-img mb-4">
+            <h2 class="fw-bold text-primary mb-3">Asterion está diseñando tu look...</h2>
+            <p class="text-muted lead">Analizando tallas, combinando colores y consultando el stock.</p>
+            <div class="spinner-border text-primary mt-3" role="status"></div>
+        </div>
+
+        <div id="state-success" class="hidden animate__animated animate__fadeInUp">
+            <img src="{% static 'img/asterion4.png' %}" alt="Listo" style="height: 250px;" class="mb-4">
+            <h1 class="fw-bold text-success mb-3">¡Caja Lista! 📦</h1>
+            <p class="lead mb-4">He seleccionado 5 prendas exclusivas para ti.</p>
+            
+            <a href="{% url 'ver_pedido' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow">
+                <i class="bi bi-eye-fill"></i> Ver mi Caja Ahora
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // Al cargar la página, llamamos a la IA automáticamente
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // Llamada AJAX a tu vista de Django
+            fetch("{% url 'crear_pedido' %}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        // Esperamos un poquito (1.5s) extra para que se vea la animación
+                        setTimeout(() => {
+                            document.getElementById('state-thinking').classList.add('hidden');
+                            document.getElementById('state-success').classList.remove('hidden');
+                        }, 1500);
+                    } else {
+                        alert("Hubo un problema: " + data.message);
+                        window.location.href = "{% url 'home' %}";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Error de conexión con Asterion.");
+                });
+        });
+    </script>
+
+</body>
+</html>

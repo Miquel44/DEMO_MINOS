@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Caja Minos | MinosStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #eff6ff; font-family: 'Segoe UI', sans-serif; }
+        .card-product {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .card-product:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .status-badge {
+            background-color: #dbeafe; color: #1e40af; 
+            padding: 5px 15px; border-radius: 20px; font-weight: bold;
+        }
+        .total-card {
+            background: #1e293b; color: white; border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">MinosStore 🐂</a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+</nav>
+
+<div class="container mb-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">📦 Tu Caja Personalizada</h2>
+            <p class="text-muted mb-0">Pedido #{{ pedido.id }} • Fecha: {{ pedido.fecha_pedido|date:"d/m/Y" }}</p>
+        </div>
+        <span class="status-badge">{{ pedido.estado }}</span>
+    </div>
+
+    <div class="alert alert-primary d-flex align-items-center shadow-sm border-0" role="alert">
+        <i class="bi bi-stars fs-3 me-3"></i>
+        <div>
+            <strong>Nota de Asterion:</strong>
+            "He seleccionado estas piezas basándome en tu estilo único. Creo que la combinación de colores resaltará tu personalidad. ¡Pruébatelo todo en casa!"
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        {% for item in items %}
+        <div class="col-md-4 col-lg-3"> <div class="card card-product shadow-sm">
+                <img src="{{ item.product.image_url }}" class="card-img-top" alt="{{ item.product.nombre }}" 
+                     style="height: 250px; object-fit: cover;">
+                
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">{{ item.product.marca }}</h6>
+                    <h5 class="card-title fs-6 fw-bold">{{ item.product.nombre }}</h5>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="fw-bold text-primary">{{ item.product.precio }} €</span>
+                        <span class="badge bg-light text-dark border">Talla M</span> </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="col-md-4 col-lg-3">
+            <div class="card total-card h-100 p-4 shadow">
+                <h4 class="fw-bold mb-4">Resumen</h4>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>5 Prendas</span>
+                    <span>{{ pedido.total_final|add:"-10" }} €</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Servicio Personal Shopper</span>
+                    <span>10.00 €</span>
+                </div>
+                
+                <hr class="border-white">
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fs-5">Total</span>
+                    <span class="fs-5 fw-bold">{{ pedido.total_final }} €</span>
+                </div>
+
+                <a href="{% url 'gestionar_devolucion' pedido.id %}" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                     <i class="bi bi-arrow-repeat"></i> Gestionar Devolución / Checkout
+                </a>
+                <p class="text-center mt-3 small text-white-50">
+                    *Solo pagarás por lo que te quedes. Los 10€ se descuentan si compras algo.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

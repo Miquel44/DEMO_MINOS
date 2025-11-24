@@ -63,7 +63,7 @@
             text-align: center;
         }
         .style-img-result {
-            max-height: 300px; /* Un poco más grande para que se luzca el dibujo */
+            max-height: 300px;
             object-fit: contain;
             margin-bottom: 20px;
             border-radius: 10px;
@@ -79,6 +79,7 @@
         </div>
 
         <div class="card-body p-5">
+            
             <form method="POST" id="mainForm">
                 {% csrf_token %}
 
@@ -129,8 +130,8 @@
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="option-card" onclick="selectGender('Unisex')">
-                                <div class="fs-1">🌈</div><div class="fw-bold mt-2">Unisex</div>
+                            <div class="option-card" onclick="selectGender('Niño')">
+                                <div class="fs-1">🧸</div><div class="fw-bold mt-2">Niño/a</div>
                             </div>
                         </div>
                     </div>
@@ -173,27 +174,26 @@
 <script>
     const staticBaseUrl = "{% static 'img/' %}";
 
-    // 1. Textos descriptivos actualizados
     const styleData = {
         "Formal": {
             title: "Estilo Formal",
-            desc: "Elegancia, cortes limpios y profesionalidad. Asterion seleccionará trajes y prendas sofisticadas para ti."
+            desc: "Elegancia y buena presencia. Asterion seleccionará prendas sofisticadas ideales para eventos importantes."
         },
         "Casual": {
             title: "Estilo Casual",
-            desc: "Comodidad ante todo, pero con estilo. Jeans, básicos de calidad y tejidos naturales serán tu base."
+            desc: "Comodidad ante todo. Jeans, sudaderas y tejidos suaves para el día a día y el colegio."
         },
         "Deportivo": {
             title: "Estilo Sport",
-            desc: "Energía y movimiento. Ropa técnica y cómoda preparada para la acción y el día a día dinámico."
+            desc: "Energía pura. Ropa resistente y cómoda preparada para jugar y moverse sin parar."
         },
-        "Alternativo": { // <--- CAMBIADO DE AVANT-GARDE A ALTERNATIVO
+        "Alternativo": {
             title: "Estilo Alternativo",
-            desc: "Urbano, moderno y con personalidad propia. Te propondremos piezas únicas que rompen la norma."
+            desc: "Con personalidad propia. Piezas modernas y originales para destacar."
         }
     };
 
-    // 2. Mapeo de imágenes (Asegúrate de tener estos archivos en core/static/img/avatars/)
+    // MAPEO ACTUALIZADO: 'Niño' usa las imágenes 'unisex_'
     const avatarImages = {
         "Hombre": {
             "Formal": "avatars/hombre_formal.png",
@@ -207,7 +207,7 @@
             "Deportivo": "avatars/mujer_sport.png",
             "Alternativo": "avatars/mujer_alternativo.png",
         },
-        "Unisex": { 
+        "Niño": { // <--- CAMBIADO DE UNISEX A NIÑO (Pero usa las mismas fotos que ya tienes)
             "Formal": "avatars/unisex_formal.png",
             "Casual": "avatars/unisex_casual.png",
             "Deportivo": "avatars/unisex_sport.png",
@@ -215,39 +215,37 @@
         }
     };
 
-    // 3. Preguntas actualizadas con "Alternativo"
     const questions = [
         {
-            id: 1, title: "¿Cómo es tu fin de semana ideal?",
+            id: 1, title: "¿Cómo es tu plan perfecto?",
             options: [
-                { text: "Cena elegante", style: "Formal", icon: "🍸" },
-                { text: "Netflix y sofá", style: "Casual", icon: "🍿" },
-                { text: "Salir a correr", style: "Deportivo", icon: "🏃" },
-                { text: "Concierto o festival", style: "Alternativo", icon: "🎸" } // <--- CAMBIO
+                { text: "Fiesta o Evento", style: "Formal", icon: "🎉" },
+                { text: "Cine y Palomitas", style: "Casual", icon: "🍿" },
+                { text: "Jugar en el parque", style: "Deportivo", icon: "⚽" },
+                { text: "Dibujar o Concierto", style: "Alternativo", icon: "🎨" }
             ]
         },
         {
-            id: 2, title: "¿Qué calzado usas más?",
+            id: 2, title: "¿Qué calzado prefieres?",
             options: [
-                { text: "Zapatos de piel", style: "Formal", icon: "👠" },
-                { text: "Zapatillas blancas", style: "Casual", icon: "👟" },
-                { text: "Deportivas técnicas", style: "Deportivo", icon: "⚡" },
-                { text: "Botas o diseño único", style: "Alternativo", icon: "🥾" } // <--- CAMBIO
+                { text: "Zapatos de vestir", style: "Formal", icon: "👞" },
+                { text: "Zapatillas cómodas", style: "Casual", icon: "👟" },
+                { text: "Deportivas rápidas", style: "Deportivo", icon: "⚡" },
+                { text: "Botas chulas", style: "Alternativo", icon: "🥾" }
             ]
         },
         {
-            id: 3, title: "¿Colores en tu armario?",
+            id: 3, title: "¿Colores favoritos?",
             options: [
-                { text: "Negro, Azul, Gris", style: "Formal", icon: "⚫" },
-                { text: "Beige, Blanco, Jeans", style: "Casual", icon: "🔵" },
-                { text: "Neón y Vivos", style: "Deportivo", icon: "🟢" },
-                { text: "Negro, Rojo, Estampados", style: "Alternativo", icon: "🟣" } // <--- CAMBIO
+                { text: "Azul y Negro", style: "Formal", icon: "⚫" },
+                { text: "Blanco y Vaquero", style: "Casual", icon: "🔵" },
+                { text: "Colores Vivos", style: "Deportivo", icon: "🟢" },
+                { text: "Rojo y Estampados", style: "Alternativo", icon: "🟣" }
             ]
         }
     ];
 
     let currentQuestionIndex = 0;
-    // Puntuaciones iniciales (Fíjate que ahora la clave es "Alternativo")
     let scores = { "Formal": 0, "Casual": 0, "Deportivo": 0, "Alternativo": 0 };
     let userGender = ""; 
 
@@ -264,6 +262,7 @@
 
     function selectGender(gender) {
         userGender = gender;
+        // Rellenar el select oculto (que ahora tiene la opción 'Niño')
         document.querySelector('select[name="genero"]').value = gender;
         nextStep(3);
     }
@@ -311,23 +310,19 @@
         document.getElementById('loadingStep').classList.add('active');
         updateProgress(100);
 
-        // Calcular ganador
         let winnerStyle = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
 
-        // Rellenar input oculto para Django
         const finalString = `Soy ${userGender}. Mi estilo predominante es ${winnerStyle}.`;
         document.querySelector('textarea[name="gustos_texto"]').value = finalString;
 
         setTimeout(() => {
             document.getElementById('loadingStep').classList.remove('active');
             
-            // Mostrar datos en el Modal
             const data = styleData[winnerStyle];
-            document.getElementById('modalTitle').innerText = `¡Eres ${data.title}!`;
+            document.getElementById('modalTitle').innerText = `¡Tu estilo es ${data.title}!`;
             document.getElementById('modalDesc').innerText = data.desc;
             
-            // SELECCIONAR LA FOTO CORRECTA
-            // Accede a avatarImages[Genero][Estilo]
+            // Usar las imágenes mapeadas
             const imagePath = avatarImages[userGender][winnerStyle];
             document.getElementById('modalImg').src = staticBaseUrl + imagePath;
 

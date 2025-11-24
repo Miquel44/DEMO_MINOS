@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout Final | MinosStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; padding-bottom: 100px;}
+        .product-row {
+            background: white; border-radius: 15px; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;
+            border-left: 5px solid #cbd5e1; transition: all 0.3s;
+        }
+        .product-row.kept { border-left-color: #198754; background-color: #f0fdf4; }
+        .product-row.returned { border-left-color: #dc3545; background-color: #fef2f2; }
+        .img-checkout { width: 120px; height: 150px; object-fit: cover; }
+        .btn-check-custom { width: 100%; margin-bottom: 5px; border-radius: 10px; padding: 10px; font-weight: bold; }
+        .reason-box { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">🛒 Checkout de tu Caja</h1>
+        <p class="text-muted">Decide qué te quedas. Se actualizará el precio automáticamente.</p>
+    </div>
+
+    <form method="POST" action="{% url 'gestionar_devolucion' pedido.id %}">
+        {% csrf_token %}
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                {% for item in items %}
+                <div class="product-row d-flex align-items-center item-card" 
+                     id="card-{{ item.id }}" 
+                     data-price="{{ item.product.precio }}">
+                    
+                    <img src="{{ item.product.image_url }}" class="img-checkout">
+                    
+                    <div class="flex-grow-1 p-4">
+                        <h5 class="fw-bold mb-1">{{ item.product.nombre }}</h5>
+                        <p class="text-muted mb-2">{{ item.product.marca }} - <span class="price-tag">{{ item.product.precio }}</span> €</p>
+                        
+                        <div class="reason-box mt-3" id="reason-{{ item.id }}">
+                            <select name="motivo_{{ item.id }}" class="form-select form-select-sm">
+                                <option value="">Motivo de devolución...</option>
+                                <option value="Talla">No es mi talla</option>
+                                <option value="Estilo">No es mi estilo</option>
+                                <option value="Precio">Me parece caro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-3" style="min-width: 200px;">
+                        <input type="radio" class="btn-check action-radio" name="decision_{{ item.id }}" 
+                               id="keep-{{ item.id }}" value="keep" 
+                               data-id="{{ item.id }}" required checked>
+                        <label class="btn btn-outline-success btn-check-custom" for="keep-{{ item.id }}">
+                            <i class="bi bi-bag-heart-fill"></i> Me lo quedo
+                        </label>
+
+                        <input type="radio" class="btn-check action-radio" name="decision_{{ item.id }}" 
+                               id="return-{{ item.id }}" value="return" 
+                               data-id="{{ item.id }}">
+                        <label class="btn btn-outline-danger btn-check-custom" for="return-{{ item.id }}">
+                            <i class="bi bi-arrow-return-left"></i> Lo devuelvo
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 position-sticky" style="top: 20px;">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">Resumen Final</h4>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Valor Prendas</span>
+                            <span id="subtotalDisplay">0.00 €</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Descuento 10€ (Servicio)</span>
+                            <span id="serviceDiscountDisplay">-0.00 €</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 text-success">
+                            <span>Descuento 25% (Todo)</span>
+                            <span id="fullDiscountDisplay">-0.00 €</span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="fs-4 fw-bold">A Pagar</span>
+                            <span class="fs-4 fw-bold text-primary" id="totalDisplay">0.00 €</span>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg rounded-pill">
+                                Confirmar y Pagar <i class="bi bi-credit-card"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // LÓGICA DE CÁLCULO EN VIVO
+    document.addEventListener("DOMContentLoaded", function() {
+        const radios = document.querySelectorAll('.action-radio');
+        
+        radios.forEach(radio => {
+            radio.addEventListener('change', updateTotals);
+        });
+
+        // Ejecutar al inicio para calcular el estado por defecto
+        updateTotals();
+    });
+
+    function updateTotals() {
+        let subtotal = 0;
+        let itemsKept = 0;
+        
+        // 1. Recorrer todas las tarjetas de producto
+        document.querySelectorAll('.item-card').forEach(card => {
+            const price = parseFloat(card.getAttribute('data-price').replace(',', '.'));
+            const id = card.id.replace('card-', '');
+            
+            // Ver qué radio está marcado (keep o return)
+            const isKept = document.getElementById('keep-' + id).checked;
+            const reasonBox = document.getElementById('reason-' + id);
+
+            // Estilos visuales
+            card.classList.remove('kept', 'returned');
+            if (isKept) {
+                card.classList.add('kept');
+                reasonBox.style.display = 'none';
+                subtotal += price;
+                itemsKept++;
+            } else {
+                card.classList.add('returned');
+                reasonBox.style.display = 'block';
+            }
+        });
+
+        // 2. Calcular Descuentos
+        let discountService = 0;
+        let discountFull = 0;
+
+        // Regla: Si te quedas al menos 1, te devolvemos los 10€ del servicio
+        if (itemsKept > 0) {
+            discountService = 10.00;
+        }
+
+        // Regla: Si te quedas las 5 (asumiendo que son 5 en la caja), 25% descuento
+        // Contamos cuántos items hay en total en el HTML
+        const totalItems = document.querySelectorAll('.item-card').length;
+        
+        if (itemsKept === totalItems && totalItems > 0) {
+            discountFull = subtotal * 0.25;
+        }
+
+        // 3. Calcular Total Final
+        // El precio base es Subtotal - Descuento25% - 10€
+        let total = subtotal - discountFull - discountService;
+        if (total < 0) total = 0;
+
+        // 4. Actualizar HTML
+        document.getElementById('subtotalDisplay').innerText = subtotal.toFixed(2) + ' €';
+        document.getElementById('serviceDiscountDisplay').innerText = '-' + discountService.toFixed(2) + ' €';
+        document.getElementById('fullDiscountDisplay').innerText = '-' + discountFull.toFixed(2) + ' €';
+        document.getElementById('totalDisplay').innerText = total.toFixed(2) + ' €';
+    }
+</script>
+
+</body>
+</html>

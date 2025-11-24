@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pasarela de Pago</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .payment-card { max-width: 500px; width: 100%; border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .cc-icon { height: 30px; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card payment-card">
+    <div class="card-header bg-white border-0 pt-4 pb-0 text-center">
+        <h3 class="fw-bold">Pago Seguro</h3>
+        <p class="text-muted">Pedido #{{ pedido.id }}</p>
+    </div>
+    <div class="card-body p-5">
+        
+        <div class="alert alert-primary text-center fw-bold fs-4">
+            Total a pagar: {{ pedido.total_final }} €
+        </div>
+
+        <form method="POST" action="{% url 'procesar_pago' pedido.id %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">TITULAR DE LA TARJETA</label>
+                <input type="text" class="form-control form-control-lg" placeholder="Como aparece en la tarjeta" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">NÚMERO DE TARJETA</label>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-lg" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                    <span class="input-group-text bg-white"><img src="https://img.icons8.com/color/48/visa.png" width="30"></span>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label class="form-label small fw-bold text-muted">CADUCIDAD</label>
+                    <input type="text" class="form-control form-control-lg" placeholder="MM/YY" maxlength="5" required>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small fw-bold text-muted">CVV</label>
+                    <input type="text" class="form-control form-control-lg" placeholder="123" maxlength="3" required>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-dark btn-lg rounded-pill">
+                    Pagar {{ pedido.total_final }} €
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -69,7 +69,7 @@ class StyleProfiles(models.Model):
     talla_superior = models.CharField(max_length=10, blank=True, null=True)
     talla_inferior = models.CharField(max_length=10, blank=True, null=True)
     estilo_preferido = models.CharField(max_length=100, blank=True, null=True)
-    presupuesto_rango = models.CharField(max_length=50, blank=True, null=True)
+    presupuesto_rango = models.DecimalField(max_digits=10, decimal_places=2)
     gustos_texto = models.TextField(blank=True, null=True)
     creado_en = models.DateTimeField(blank=True, null=True)
 

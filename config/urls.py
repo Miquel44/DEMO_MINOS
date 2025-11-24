@@ -29,4 +29,13 @@ urlpatterns = [
     path('login/', views.login_custom, name='login'),
     path('onboarding/', views.cuestionario_estilo, name='cuestionario'),
     path('home', views.home, name= 'home'),
+    path('crear_pedido/', views.crear_pedido, name='crear_pedido'),
+    path('mi-caja/', views.ver_pedido, name='ver_pedido'),
+    path('generando-pedido/', views.generando_pedido, name='generando_pedido'), 
+    path('perfil/', views.ver_perfil, name='ver_perfil'),
+    path('historial/', views.historial_pedidos, name='historial'),
+    path('pedido/<int:pedido_id>/', views.detalle_pedido, name='detalle_pedido'),
+    path('devolucion/<int:pedido_id>/', views.gestionar_devolucion, name='gestionar_devolucion'),
+    path('procesar-pago/<int:pedido_id>/', views.procesar_pago, name='procesar_pago'),
+    
 ]
