@@ -326,12 +326,14 @@ def chat_view(request):
 # --- API PARA ENVIAR MENSAJES (AJAX) ---
 def api_chat(request):
     if request.method == 'POST':
+        # 1. Obtener el ID del usuario de la sesión
+        usuario_id = request.session.get('usuario_id')
+        
         data = json.loads(request.body)
         mensaje = data.get('mensaje', '')
         
-        # Aquí podrías recuperar un historial de la BD si quisieras guardar chats
-        # De momento le pasamos una lista vacía para simplificar
-        respuesta_asterion = chat_con_asterion(mensaje)
+        # 2. LLAMADA CORREGIDA: Ahora pasamos el cliente_id
+        respuesta_asterion = chat_con_asterion(mensaje, cliente_id=usuario_id)
         
         return JsonResponse({'respuesta': respuesta_asterion})
         
