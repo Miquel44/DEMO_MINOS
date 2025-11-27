@@ -110,7 +110,7 @@ def generar_pedido_ia(cliente_id):
     """
 
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         response = model.generate_content(prompt)
         
         texto_limpio = response.text.replace("```json", "").replace("```", "").strip()
@@ -134,4 +134,36 @@ def generar_pedido_ia(cliente_id):
         # Fallback inteligente: devolvemos 5 primeros candidatos del filtro (no totalmente aleatorios)
         return lista_candidatos[:5]
     
-    
+    # core/ai_logic.py
+
+def chat_con_asterion(mensaje_usuario, historial_chat=[]):
+    """
+    1. Recibe el mensaje del usuario.
+    2. Envía el contexto a Gemini.
+    3. Devuelve la respuesta de Asterion.
+    """
+    try:
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # Construimos el prompt de sistema para darle personalidad
+        prompt_sistema = """
+        Eres Asterion, un Personal Shopper exclusivo de la tienda de moda 'MinosStore'.
+        Tu avatar es un minotauro elegante.
+        Tu tono es: Profesional, sofisticado, un poco mitológico pero muy servicial y experto en moda.
+        
+        OBJETIVO: Ayudar al cliente con dudas de estilo, preguntas sobre su pedido o devoluciones.
+        NO INVENTES datos de pedidos específicos (si te preguntan "¿dónde está mi pedido?", diles que lo miren en la sección 'Mis Pedidos').
+        Sé conciso (máximo 3 frases).
+        """
+        
+        # Creamos el chat con el historial previo (si existe)
+        chat = model.start_chat(history=historial_chat)
+        
+        # Enviamos el mensaje con el contexto del sistema
+        response = chat.send_message(f"{prompt_sistema}\n\nUsuario dice: {mensaje_usuario}")
+        
+        return response.text
+
+    except Exception as e:
+        print(f"Error Chat: {e}")
+        return "Lo siento, los astros no están alineados ahora mismo. Inténtalo más tarde."

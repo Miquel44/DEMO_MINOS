@@ -82,7 +82,9 @@
                     {% if nombre %}
                         <span class="text-muted me-2">Hola, <strong>{{ nombre }}</strong></span>
                         
-                        <a href="#" class="nav-link-custom"><i class="bi bi-question-circle"></i> Ayuda</a>
+                        <a href="{% url 'chat_view' %}" class="nav-link-custom">
+                            <i class="bi bi-chat-dots-fill"></i> Hablar con Asterion
+                        </a>
                         <a href="{% url 'historial' %}" class="nav-link-custom"><i class="bi bi-box-seam"></i> Mis Pedidos</a>
                         <a href="{% url 'ver_perfil' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
                             <i class="bi bi-person"></i> Ver Perfil

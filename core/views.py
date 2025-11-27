@@ -311,3 +311,28 @@ def procesar_pago(request, pedido_id):
         
         messages.success(request, "¡Pago realizado correctamente! Gracias por tu compra.")
         return redirect('historial')
+    
+    
+from django.http import JsonResponse
+from .ai_logic import chat_con_asterion
+import json
+
+# --- VISTA DEL CHAT (Página) ---
+def chat_view(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id: return redirect('login')
+    return render(request, 'core/chat.html')
+
+# --- API PARA ENVIAR MENSAJES (AJAX) ---
+def api_chat(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        mensaje = data.get('mensaje', '')
+        
+        # Aquí podrías recuperar un historial de la BD si quisieras guardar chats
+        # De momento le pasamos una lista vacía para simplificar
+        respuesta_asterion = chat_con_asterion(mensaje)
+        
+        return JsonResponse({'respuesta': respuesta_asterion})
+        
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
