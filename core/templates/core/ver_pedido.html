@@ -1,100 +1,277 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Caja Minos | MinosStore</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Caja Minos | MinosStore</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
     <style>
-        body { background-color: #eff6ff; font-family: 'Segoe UI', sans-serif; }
-        .card-product {
-            border: none;
+        body {
+            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- Estilos Asterion Hero (Principal) --- */
+        .asterion-hero {
+            position: relative;
+            text-align: center;
+            padding-top: 1rem;
+            margin-bottom: 2rem;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .asterion-img-main {
+            height: 380px; 
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+            transition: transform 0.3s ease;
+        }
+        .asterion-img-main:hover {
+            transform: scale(1.02) rotate(-1deg);
+        }
+
+        /* --- NUEVO: Estilos para Asterions Decorativos --- */
+        .asterion-deco-title {
+            height: 60px;
+            position: absolute;
+            left: -20px;
+            top: -15px;
+            z-index: 2;
+            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
+        }
+        
+        .asterion-sidebar-img {
+            width: 80%;
+            margin: 20px auto 0 auto;
+            display: block;
+            opacity: 0.8;
+            filter: grayscale(30%);
+            transition: all 0.3s ease;
+        }
+         .summary-sidebar:hover .asterion-sidebar-img {
+             opacity: 1;
+             filter: grayscale(0%);
+             transform: scale(1.05);
+         }
+
+
+        /* --- Bocadillos de Cómic --- */
+        .comic-bubble {
+            position: absolute;
+            background: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 2px solid #000;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 4px 4px 0px #000;
+            top: 20%;
+            left: 55%; 
+            transform: rotate(-5deg);
+            z-index: 10;
+            animation: float 3s ease-in-out infinite;
+            max-width: 280px;
+        }
+
+        /* --- Caja Azul de Contexto --- */
+        .asterion-message-box {
+            background-color: #bfdbfe;
             border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s;
+            padding: 1.5rem;
+            max-width: 800px;
+            margin: -40px auto 2rem auto;
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: left;
+            border: 2px solid #fff;
+        }
+        
+        /* --- Input Falso "Habla con Asterion" --- */
+        .fake-chat-input {
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+            text-align: right;
+        }
+        .fake-chat-btn {
+            background: white;
+            border: 2px solid #000;
+            padding: 12px 20px;
+            width: 100%;
+            text-align: left;
+            color: #666;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            position: relative;
+            display: block;
+            text-decoration: none;
+            box-shadow: 4px 4px 0px #000;
+            transition: all 0.2s;
+        }
+        .fake-chat-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000;
+            color: #000;
+        }
+        .fake-chat-label {
+            background: black;
+            color: white;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-weight: bold;
+        }
+
+        /* --- Estilos de Productos (Horizontal) --- */
+        .card-product {
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s;
+            background: white;
             height: 100%;
         }
-        .card-product:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .status-badge {
-            background-color: #dbeafe; color: #1e40af; 
-            padding: 5px 15px; border-radius: 20px; font-weight: bold;
+        .card-product:hover {
+            transform: translateY(-5px);
+            border-color: #000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .total-card {
-            background: #1e293b; color: white; border-radius: 15px;
+        
+        /* --- Estilos Resumen (Lateral) --- */
+        .summary-sidebar {
+            background: #1e293b;
+            color: white;
+            border-radius: 0;
+            padding: 1.5rem;
+            box-shadow: 5px 5px 0px #00000020;
+            position: sticky;
+            top: 20px;
+            overflow: hidden; /* Para que la imagen de abajo no se salga */
+        }
+
+        .status-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(-5deg); }
+            50% { transform: translateY(-8px) rotate(-5deg); }
+            100% { transform: translateY(0px) rotate(-5deg); }
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-light bg-white shadow-sm mb-4">
-    <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">MinosStore 🐂</a>
-        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver</a>
+<nav class="navbar navbar-light bg-white border-bottom py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-bold fs-4" href="{% url 'home' %}">MinosStore 🐂</a>
+        <div>
+            <a href="{% url 'home' %}" class="btn btn-outline-dark btn-sm rounded-0">VOLVER</a>
+        </div>
     </div>
 </nav>
 
-<div class="container mb-5">
-    
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold">📦 Tu Caja Personalizada</h2>
-            <p class="text-muted mb-0">Pedido #{{ pedido.id }} • Fecha: {{ pedido.fecha_pedido|date:"d/m/Y" }}</p>
-        </div>
+<div class="bg-white py-2 border-bottom mb-0">
+    <div class="container d-flex justify-content-between align-items-center">
+        <span class="small text-muted font-monospace">PEDIDO #{{ pedido.id }}</span>
         <span class="status-badge">{{ pedido.estado }}</span>
     </div>
+</div>
 
-    <div class="alert alert-primary d-flex align-items-center shadow-sm border-0" role="alert">
-        <i class="bi bi-stars fs-3 me-3"></i>
-        <div>
-            <strong>Nota de Asterion:</strong>
-            "He seleccionado estas piezas basándome en tu estilo único. Creo que la combinación de colores resaltará tu personalidad. ¡Pruébatelo todo en casa!"
+<section class="asterion-hero">
+    <div class="container position-relative">
+        <div class="comic-bubble">
+            ¡Hola {{ pedido.cliente.nombre }}! Mira lo que he preparado para ti. ✨
         </div>
-    </div>
-
-    <div class="row g-4">
         
-        {% for item in items %}
-        <div class="col-md-4 col-lg-3"> <div class="card card-product shadow-sm">
-                <img src="{{ item.product.image_url }}" class="card-img-top" alt="{{ item.product.nombre }}" 
-                     style="height: 250px; object-fit: cover;">
-                
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted small fw-bold">{{ item.product.marca }}</h6>
-                    <h5 class="card-title fs-6 fw-bold">{{ item.product.nombre }}</h5>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <span class="fw-bold text-primary">{{ item.product.precio }} €</span>
-                        <span class="badge bg-light text-dark border">Talla M</span> </div>
-                </div>
+        <img src="{% static 'img/AsterionHello.png' %}" alt="Asterion" class="asterion-img-main">
+    </div>
+</section>
+
+<div class="container px-3">
+    <div class="asterion-message-box">
+        <div class="d-flex align-items-start">
+            <i class="bi bi-chat-quote-fill fs-2 me-3 text-primary opacity-50"></i>
+            <div>
+                <p class="mb-0"><strong>Nota de Estilo:</strong><br>He seleccionado estas prendas basándome en tu perfil único. ¡Pruébatelo todo en casa con calma! 🐂</p>
             </div>
         </div>
-        {% endfor %}
+    </div>
+    <div class="fake-chat-input">
+        <a href="{% url 'chat_view' %}" class="fake-chat-btn">
+            <span class="fake-chat-label">AI ASSISTANT</span>
+            ¿Quieres saber por qué te las recomiendo? <i class="bi bi-cursor-fill float-end"></i>
+        </a>
+    </div>
+</div>
 
-        <div class="col-md-4 col-lg-3">
-            <div class="card total-card h-100 p-4 shadow">
-                <h4 class="fw-bold mb-4">Resumen</h4>
-                
-                <div class="d-flex justify-content-between mb-2">
-                    <span>5 Prendas</span>
-                    <span>{{ pedido.total_final|add:"-10" }} €</span>
+<div class="container-fluid px-lg-5 mb-5"> 
+    <div class="row g-4">
+        
+        <div class="col-lg-9 position-relative">
+            <img src="{% static 'img/AsterionPointing.png' %}" alt="" class="asterion-deco-title d-none d-md-block">
+            
+            <h5 class="fw-bold mb-4 font-monospace ps-4 border-start border-4 border-dark ms-3">TU SELECCIÓN EXCLUSIVA</h5>
+            
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                {% for item in items %}
+                <div class="col">
+                    <div class="card card-product h-100">
+                        <div style="height: 200px; overflow: hidden; position: relative;">
+                            <img src="{{ item.product.image_url }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ item.product.nombre }}">
+                        </div>
+                        <div class="card-body p-2">
+                            <p class="text-uppercase text-muted mb-1 small fw-bold" style="font-size: 0.65rem;">{{ item.product.marca }}</p>
+                            <h6 class="card-title fw-bold text-truncate" style="font-size: 0.9rem;">{{ item.product.nombre }}</h6>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="fw-bold small">{{ item.product.precio }} €</span>
+                                <span class="badge bg-light text-dark border rounded-0" style="font-size: 0.65rem;">Talla M</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between mb-3">
-                    <span>Servicio Personal Shopper</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="summary-sidebar text-center text-lg-start">
+                <h5 class="fw-bold mb-4 font-monospace border-bottom border-secondary pb-2">RESUMEN</h5>
+                
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-white-50">Prendas</span>
+                    <span>5 Artículos</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 small">
+                    <span class="text-white-50">P. Shopper</span>
                     <span>10.00 €</span>
                 </div>
                 
-                <hr class="border-white">
+                <hr class="border-secondary my-3">
                 
-                <div class="d-flex justify-content-between mb-4">
-                    <span class="fs-5">Total</span>
-                    <span class="fs-5 fw-bold">{{ pedido.total_final }} €</span>
+                <div class="d-flex justify-content-between mb-4 align-items-end">
+                    <span class="text-white-50">Total Est.</span>
+                    <span class="fs-4 fw-bold text-warning">{{ pedido.total_final }} €</span>
                 </div>
 
-                <a href="{% url 'gestionar_devolucion' pedido.id %}" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
-                     <i class="bi bi-arrow-repeat"></i> Gestionar Devolución / Checkout
+                <a href="{% url 'gestionar_devolucion' pedido.id %}" class="btn btn-primary w-100 py-3 fw-bold rounded-0 text-uppercase shadow mb-3">
+                    Gestionar Devolución <i class="bi bi-box-seam ms-2"></i>
                 </a>
-                <p class="text-center mt-3 small text-white-50">
-                    *Solo pagarás por lo que te quedes. Los 10€ se descuentan si compras algo.
-                </p>
+
+                <img src="{% static 'img/AsterionSitting.png' %}" alt="Relaxed Asterion" class="asterion-sidebar-img">
+                
             </div>
         </div>
 

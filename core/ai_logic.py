@@ -115,7 +115,7 @@ def generar_pedido_ia(cliente_id):
     """
 
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-flash-lateste')
         response = model.generate_content(prompt)
         
         texto_limpio = response.text.replace("```json", "").replace("```", "").strip()
@@ -173,7 +173,7 @@ def chat_con_asterion(mensaje_usuario, cliente_id, historial_chat=[]):
                 pass
 
         # B. CONFIGURAR EL MODELO (Con el contexto inyectado)
-        model = genai.GenerativeModel('gemini-2.0-flash') 
+        model = genai.GenerativeModel('gemini-flash-latest') 
         
         prompt_sistema = f"""
         ACTÚA COMO: Asterion, el Personal Shopper Minotauro de 'MinosStore'.
